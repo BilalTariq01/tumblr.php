@@ -136,9 +136,9 @@ class RequestHandler
                         'contents'  => $contents,
                     ];
                 }
-                foreach ((array) $file as $idx => $path) {
+                foreach ((array) $file as $path) {
                     $form[] = [
-                        'name'      => "data[$idx]",
+                        'name'      => "data",
                         'contents'  => file_get_contents($path),
                         'filename'  => pathinfo($path, PATHINFO_FILENAME),
                     ];
