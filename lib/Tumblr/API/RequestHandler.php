@@ -24,6 +24,9 @@ class RequestHandler
     /** @var \GuzzleHttp\Client */
     public $client;
 
+    /** @var string */
+    public $oauthType = 'oauth1';
+
     /**
      * Instantiate a new RequestHandler
      */
@@ -36,6 +39,16 @@ class RequestHandler
         $this->client = new \GuzzleHttp\Client(array(
             'allow_redirects' => false,
         ));
+    }
+
+    /**
+     * Set the OAuth type for this request handler
+     * @param string $type the type of OAuth to use (oauth1 or oauth2)
+     * @return void
+     */
+    public function setOAuthType($type)
+    {
+        $this->oauthType = $type;
     }
 
     /**
@@ -54,11 +67,15 @@ class RequestHandler
      * Set the token for this request handler
      *
      * @param string $token  the oauth token
-     * @param string $secret the oauth secret
+     * @param string $secret the oauth secret (null for oauth2)
      * @return void
      */
-    public function setToken($token, $secret)
+    public function setToken($token, $secret = null)
     {
+        if ($this->oauthType === 'oauth2') {
+            $this->token =  'Bearer ' . $token;
+            return;
+        }
         $this->token = new \Eher\OAuth\Token($token, $secret);
     }
 
@@ -96,19 +113,24 @@ class RequestHandler
         $file = isset($options['data']) ? $options['data'] : false;
         unset($options['data']);
 
-        // Get the oauth signature to put in the request header
         $url = $this->baseUrl . $path;
-        $oauth = \Eher\OAuth\Request::from_consumer_and_token(
-            $this->consumer,
-            $this->token,
-            $method,
-            $url,
-            $options
-        );
-        $oauth->sign_request($this->signatureMethod, $this->consumer, $this->token);
-        $authHeader = $oauth->to_header();
-        $pieces = explode(' ', $authHeader, 2) + [1 => ''];
-        $authString = $pieces[1];
+
+        if ($this->oauthType === 'oauth2') {
+            $authString = $this->token;
+        } else {
+            // Get the oauth signature to put in the request header
+            $oauth = \Eher\OAuth\Request::from_consumer_and_token(
+                $this->consumer,
+                $this->token,
+                $method,
+                $url,
+                $options
+            );
+            $oauth->sign_request($this->signatureMethod, $this->consumer, $this->token);
+            $authHeader = $oauth->to_header();
+            $pieces = explode(' ', $authHeader, 2) + [1 => ''];
+            $authString = $pieces[1];
+        }
 
 
         // Set up the request and get the response
@@ -158,5 +180,4 @@ class RequestHandler
 
         return $obj;
     }
-
 }

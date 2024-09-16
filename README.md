@@ -12,7 +12,13 @@ The first step is setting up a Client:
 
 ``` php
 $client = new Tumblr\API\Client($consumerKey, $consumerSecret);
-$client->setToken($token, $tokenSecret);
+$client->setToken($token, $tokenSecret); // tokenSecret is optional for oauth2
+```
+
+to use OAuth2 need to set oauth Type
+``` php
+        $requestHandler = $client->getRequestHandler();
+        $requestHandler->setOAuthType('oauth2');
 ```
 
 And then you can do anything you'd like:
