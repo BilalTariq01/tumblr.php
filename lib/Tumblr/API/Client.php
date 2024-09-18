@@ -31,6 +31,18 @@ class Client
         }
     }
 
+
+    /**
+     * Set the OAuth type for this request handler
+     * @param string $type the type of OAuth to use (oauth1 or oauth2)
+     * @return void
+     */
+    public function setOAuthType($type)
+    {
+        $this->requestHandler->setOAuthType($type);
+    }
+
+
     /**
      * Set the consumer for this client
      *
@@ -50,7 +62,7 @@ class Client
      * @param string $token  the oauth token
      * @param string $secret the oauth secret
      */
-    public function setToken($token, $secret)
+    public function setToken($token, $secret = null)
     {
         $this->requestHandler->setToken($token, $secret);
     }
