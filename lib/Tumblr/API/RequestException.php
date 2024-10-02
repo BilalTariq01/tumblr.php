@@ -18,7 +18,7 @@ class RequestException extends \Exception
         if (isset($error->meta)) {
             $errstr = $error->meta->msg;
             if (isset($error->response->errors)) {
-                $errstr .= ' ('.$error->response->errors[0].')';
+                $errstr .= ' (' . ($error->response->errors[0]->message ?? $errstr) . ')';
             }
         } elseif (isset($error->response->errors)) {
             $errstr = $error->response->errors[0];
@@ -37,5 +37,4 @@ class RequestException extends \Exception
     {
         return __CLASS__ . ": [$this->statusCode]: $this->message\n";
     }
-
 }
